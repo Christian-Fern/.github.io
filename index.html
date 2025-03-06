@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christian Fern | Mechanical Engineer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #000;
+            overflow-x: hidden;
+        }
+
+        /* Star background canvas */
+        #stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Spaceship cursor canvas */
+        #spaceship-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            pointer-events: none; /* Allow clicks to pass through */
+        }
+
+        /* Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem;
+            z-index: 100;
+            transition: background-color 0.3s;
+        }
+
+        header.scrolled {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 20px rgba(0, 100, 255, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: 1rem;
+            position: relative;
+            transition: color 0.3s;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a:hover {
+            color: #aaa;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s 0.5s forwards;
+        }
+
+        .hero h2 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s 0.8s forwards;
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s 1.1s forwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: white;
+            color: black;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s 1.4s forwards;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.5);
+            background: #f0f0f0;
+        }
+
+        /* About Section */
+        .about {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: white;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .skill-tag {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            display: inline-block;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .skill-tag:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-picture {
+            width: 100%;
+            aspect-ratio: 1;
+            background: url('/api/placeholder/400/400') center/cover;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.5s, box-shadow 0.5s;
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 40px rgba(41, 121, 255, 0.2);
+        }
+
+        .profile-picture::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+        }
+
+        /* Projects Section */
+        .projects {
+            min-height: 100vh;
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.5s, box-shadow 0.5s;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(41, 121, 255, 0.2);
+        }
+
+        .project-img {
+            width: 100%;
+            height: 200px;
+            background: url('/api/placeholder/400/200') center/cover;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-title {
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .project-description {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-tag {
+            padding: 0.3rem 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .project-link {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: white;
+            color: black;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .project-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+            background: #f0f0f0;
+        }
+
+        /* Contact Section */
+        .contact {
+            min-height: 100vh;
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .contact-info p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .contact-links {
+            margin-top: 2rem;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .contact-link:hover {
+            transform: translateX(10px);
+        }
+
+        .contact-link i {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            transition: background 0.3s;
+        }
+
+        .contact-link:hover i {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .contact-link span {
+            font-size: 1.1rem;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            resize: none;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .form-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            pointer-events: none;
+            transition: transform 0.3s, color 0.3s, font-size 0.3s;
+        }
+
+        .form-control:focus + .form-label,
+        .form-control:not(:placeholder-shown) + .form-label {
+            transform: translateY(-1.7rem);
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .social-link:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s, transform 1s;
+        }
+
+        .fade-in.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero h2 {
+                font-size: 1.5rem;
+            }
+
+            .about-content,
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .profile-picture {
+                order: -1;
+            }
+
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Star Background -->
+    <canvas id="stars-container"></canvas>
+    
+    <!-- Cursor Spaceship -->
+    <canvas id="spaceship-cursor"></canvas>
+
+    <!-- Navigation -->
+    <header>
+        <nav>
+            <div class="logo">CHRISTIAN FERN</div>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Christian Fern</h1>
+        <h2>Mechanical Engineer</h2>
+        <p>Exploring the mechanics of the world around us with passion and innovation.</p>
+        <a href="#projects" class="cta-button">View My Projects</a>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <h2 class="section-title fade-in">About Me</h2>
+        <div class="about-content">
+            <div class="about-text fade-in">
+                <p>I'm Christian Fern, a mechanical engineer with a deep passion for understanding how things work. My fascination with mechanics began early in life and has only grown stronger through my education and professional experiences.</p>
+                <p>With a background in mechanical engineering, I specialize in designing and optimizing systems that interact with the physical world. My approach combines technical expertise with creative problem-solving.</p>
+                <p>I'm particularly interested in space exploration and the engineering challenges it presents. The universe beyond our atmosphere provides endless inspiration for my work and personal projects.</p>
+                <div class="skills">
+                    <span class="skill-tag">CAD Design</span>
+                    <span class="skill-tag">3D Modeling</span>
+                    <span class="skill-tag">Structural Analysis</span>
+                    <span class="skill-tag">Prototyping</span>
+                    <span class="skill-tag">Fluid Dynamics</span>
+                    <span class="skill-tag">Thermodynamics</span>
+                </div>
+            </div>
+            <div class="profile-picture fade-in"></div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects">
+        <h2 class="section-title fade-in">My Projects</h2>
+        <p class="fade-in">Here are some of the projects I've been working on. This collection will grow as I complete more work.</p>
+        <div class="project-grid">
+            <!-- Project 1 -->
+            <div class="project-card fade-in">
+                <div class="project-img"></div>
+                <div class="project-content">
+                    <h3 class="project-title">Orbital Mechanics Simulator</h3>
+                    <p class="project-description">A physics-based simulation tool for calculating and visualizing satellite orbits and trajectories.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Physics</span>
+                        <span class="project-tag">Simulation</span>
+                        <span class="project-tag">Space</span>
+                    </div>
+                    <a href="#" class="project-link">View Details</a>
+                </div>
+            </div>
+            <!-- Project 2 -->
+            <div class="project-card fade-in">
+                <div class="project-img"></div>
+                <div class="project-content">
+                    <h3 class="project-title">Advanced Heat Exchanger</h3>
+                    <p class="project-description">Design and optimization of a novel heat exchanger for high-efficiency thermal management systems.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Thermodynamics</span>
+                        <span class="project-tag">CAD</span>
+                        <span class="project-tag">Prototyping</span>
+                    </div>
+                    <a href="#" class="project-link">View Details</a>
+                </div>
+            </div>
+            <!-- Project 3 -->
+            <div class="project-card fade-in">
+                <div class="project-img"></div>
+                <div class="project-content">
+                    <h3 class="project-title">Autonomous Rover Design</h3>
+                    <p class="project-description">A conceptual design for an autonomous rover capable of navigating and collecting samples in extreme environments.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Robotics</span>
+                        <span class="project-tag">Autonomous Systems</span>
+                        <span class="project-tag">Exploration</span>
+                    </div>
+                    <a href="#" class="project-link">View Details</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2 class="section-title fade-in">Contact Me</h2>
+        <div class="contact-content">
+            <div class="contact-info fade-in">
+                <p>I'm always interested in new projects and collaborations. If you have an idea or just want to connect, feel free to reach out to me through any of these channels.</p>
+                <div class="contact-links">
+                    <div class="contact-link">
+                        <i>✉️</i>
+                        <span>christianfern@example.com</span>
+                    </div>
+                    <div class="contact-link">
+                        <i>📱</i>
+                        <span>+1 (123) 456-7890</span>
+                    </div>
+                    <div class="contact-link">
+                        <i>📍</i>
+                        <span>San Francisco, CA</span>
+                    </div>
+                </div>
+            </div>
+            <form class="contact-form fade-in">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="name" placeholder=" ">
+                    <label for="name" class="form-label">Your Name</label>
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-control" id="email" placeholder=" ">
+                    <label for="email" class="form-label">Your Email</label>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" id="message" rows="5" placeholder=" "></textarea>
+                    <label for="message" class="form-label">Your Message</label>
+                </div>
+                <button type="submit" class="cta-button">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="#" class="social-link">
+                <span>LI</span>
+            </a>
+            <a href="#" class="social-link">
+                <span>GH</span>
+            </a>
+            <a href="#" class="social-link">
+                <span>TW</span>
+            </a>
+        </div>
+        <p>© 2025 Christian Fern. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize scroll position variables
+        let scrollY = 0;
+        let previousScrollY = 0;
+        
+        // Star animation
+        const canvas = document.getElementById('stars-container');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        
+        // Set canvas size
+        function setCanvasSize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        
+        window.addEventListener('resize', setCanvasSize);
+        setCanvasSize();
+        
+        // Star class
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.z = (Math.random() * 1000) + 500; // Depth for parallax
+                this.radius = Math.random() * 1.5;
+                this.opacity = Math.random();
+                this.opacityDirection = Math.random() > 0.5 ? 0.005 : -0.005;
+                this.parallaxFactor = this.z / 1500;
+                
+                // Add subtle movement parameters
+                this.xSpeed = (Math.random() - 0.5) * 0.1; // random speed between -0.05 and 0.05
+                this.ySpeed = (Math.random() - 0.5) * 0.05; // random speed between -0.025 and 0.025
+                
+                // Add slight wobble effect
+                this.wobbleSpeed = Math.random() * 0.02;
+                this.wobbleSize = Math.random() * 0.5;
+                this.wobbleAngle = Math.random() * Math.PI * 2; // random starting angle
+            }
+            
+            update() {
+                // Store the previous scroll position to calculate delta
+                const previousY = this.y;
+                
+                // Calculate scroll delta since last frame instead of using absolute scrollY
+                const scrollDelta = window.scrollY - previousScrollY;
+                
+                // Parallax effect based on scroll delta
+                this.y += (scrollDelta * 0.05) * this.parallaxFactor;
+                
+                // Add subtle constant movement
+                this.x += this.xSpeed;
+                this.y += this.ySpeed;
+                
+                // Add wobble effect
+                this.wobbleAngle += this.wobbleSpeed;
+                this.x += Math.sin(this.wobbleAngle) * this.wobbleSize * this.parallaxFactor;
+                
+                // Reset if out of view
+                if (this.y > height) {
+                    this.y = 0;
+                    this.x = Math.random() * width;
+                } else if (this.y < 0) {
+                    this.y = height;
+                    this.x = Math.random() * width;
+                }
+                
+                // Wrap around horizontally
+                if (this.x > width) {
+                    this.x = 0;
+                } else if (this.x < 0) {
+                    this.x = width;
+                }
+                
+                // Twinkling effect
+                this.opacity += this.opacityDirection;
+                
+                if (this.opacity > 1 || this.opacity < 0.3) {
+                    this.opacityDirection *= -1;
+                }
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+        
+        // Create stars
+        const stars = [];
+        const starCount = 300;
+        
+        for (let i = 0; i < starCount; i++) {
+            stars.push(new Star());
+        }
+        
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            const scrollDelta = scrollY - previousScrollY;
+            
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        // Spaceship cursor animation
+        const spaceshipCanvas = document.getElementById('spaceship-cursor');
+        const shipCtx = spaceshipCanvas.getContext('2d');
+        
+        // Set canvas size
+        function setSpaceshipCanvasSize() {
+            spaceshipCanvas.width = window.innerWidth;
+            spaceshipCanvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', setSpaceshipCanvasSize);
+        setSpaceshipCanvasSize();
+        
+        // Cursor position tracking
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        // Ship position (lagging behind cursor)
+        let shipX = 0;
+        let shipY = 0;
+        let shipAngle = 0;
+        
+        // Trail particles
+        const particles = [];
+        const maxParticles = 30;
+        
+        // Track mouse movement
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        // Initialize ship position
+        shipX = window.innerWidth / 2;
+        shipY = window.innerHeight / 2;
+        
+        // Particle class for exhaust trail
+        class Particle {
+            constructor(x, y, angle) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = -Math.cos(angle) * (Math.random() * 3 + 2);
+                this.speedY = -Math.sin(angle) * (Math.random() * 3 + 2);
+                this.life = 1; // Full opacity
+                this.decay = Math.random() * 0.03 + 0.02; // Random decay rate
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.size = Math.max(0.1, this.size - 0.05); // Prevent negative size
+                this.life -= this.decay;
+            }
+            
+            draw() {
+                shipCtx.fillStyle = `rgba(255, 255, 255, ${this.life})`;
+                shipCtx.beginPath();
+                shipCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                shipCtx.fill();
+            }
+        }
+        
+        // Draw the rocket ship
+        function drawSpaceship(x, y, angle) {
+            shipCtx.save();
+            shipCtx.translate(x, y);
+            shipCtx.rotate(angle);
+            
+            // Ship body (rocket shape)
+            shipCtx.fillStyle = 'white';
+            
+            // Rocket nose
+            shipCtx.beginPath();
+            shipCtx.moveTo(10, 0);
+            shipCtx.lineTo(-5, -5);
+            shipCtx.lineTo(-5, 5);
+            shipCtx.closePath();
+            shipCtx.fill();
+            
+            // Rocket body
+            shipCtx.fillRect(-15, -4, 10, 8);
+            
+            // Rocket fins
+            shipCtx.beginPath();
+            shipCtx.moveTo(-15, 0);
+            shipCtx.lineTo(-20, -8);
+            shipCtx.lineTo(-15, -4);
+            shipCtx.closePath();
+            shipCtx.fill();
+            
+            shipCtx.beginPath();
+            shipCtx.moveTo(-15, 0);
+            shipCtx.lineTo(-20, 8);
+            shipCtx.lineTo(-15, 4);
+            shipCtx.closePath();
+            shipCtx.fill();
+            
+            shipCtx.restore();
+        }
+        
+        // Animate spaceship and particles
+        function animateSpaceship() {
+            shipCtx.clearRect(0, 0, spaceshipCanvas.width, spaceshipCanvas.height);
+            
+            // Calculate angle between ship and cursor
+            const dx = mouseX - shipX;
+            const dy = mouseY - shipY;
+            const targetAngle = Math.atan2(dy, dx);
+            
+            // Smooth rotation
+            const angleDiff = targetAngle - shipAngle;
+            shipAngle += angleDiff * 0.1;
+            
+            // Smooth movement (lagging behind cursor)
+            shipX += dx * 0.08;
+            shipY += dy * 0.08;
+            
+            // Add new particles
+            if (Math.random() > 0.3) {  // Not every frame to avoid too many particles
+                particles.push(new Particle(
+                    shipX - Math.cos(shipAngle) * 15,  // Position at the back of the rocket
+                    shipY - Math.sin(shipAngle) * 15,
+                    shipAngle
+                ));
+            }
+            
+            // Update and draw particles
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                // Remove dead particles
+                if (particles[i].life <= 0 || particles[i].size <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Limit number of particles
+            while (particles.length > maxParticles) {
+                particles.shift();
+            }
+            
+            // Draw the spaceship
+            drawSpaceship(shipX, shipY, shipAngle);
+            
+            requestAnimationFrame(animateSpaceship);
+        }
+        
+        // Start animation
+        animateSpaceship();
+        
+        // Update scroll position for animations
+        
+        window.addEventListener('scroll', () => {
+            scrollY = window.scrollY;
+            
+            // Update previousScrollY after each animation frame
+            requestAnimationFrame(() => {
+                previousScrollY = scrollY;
+            });
+            
+            // Header background on scroll
+            const header = document.querySelector('header');
+            if (scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            // Reveal elements on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        });
+        
+        // Form interaction
+        const formControls = document.querySelectorAll('.form-control');
+        formControls.forEach(control => {
+            control.addEventListener('focus', () => {
+                control.parentElement.classList.add('focused');
+            });
+            
+            control.addEventListener('blur', () => {
+                control.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
+</body>
+</html>
