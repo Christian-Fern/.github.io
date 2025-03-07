@@ -903,8 +903,11 @@
             const dy = mouseY - shipY;
             const targetAngle = Math.atan2(dy, dx);
             
-            // Smooth rotation
-            const angleDiff = targetAngle - shipAngle;
+            // Smooth rotation with normalized angle difference
+            let angleDiff = targetAngle - shipAngle;
+            // Normalize angle difference to ensure shortest rotation path
+            while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+            while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
             shipAngle += angleDiff * 0.1;
             
             // Smooth movement (lagging behind cursor)
