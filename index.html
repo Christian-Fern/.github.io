@@ -908,7 +908,7 @@
             // Normalize angle difference to ensure shortest rotation path
             while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
             while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-            shipAngle += angleDiff * 0.3;
+            shipAngle += angleDiff * 0.9;
             
             // Smooth movement (lagging behind cursor)
             shipX += dx * 0.08;
